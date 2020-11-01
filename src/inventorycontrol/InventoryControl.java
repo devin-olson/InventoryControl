@@ -76,7 +76,7 @@ public class InventoryControl {
         }
         log.setLevel(Level.INFO);
         
-        log.setLevel(Level.WARNING);
+      //  log.setLevel(Level.WARNING);
         
     }
     
@@ -91,13 +91,15 @@ public class InventoryControl {
         try{
           
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Inventory","root","Gortoonforleeway232");
-            if(conn != null){
+            if(conn != null)
+            {
                 System.out.println("Successful connection to the database");
+                log.info("I successfully connected the database.");
             }
         }catch(Exception e)
         {
             System.out.println("Unsuccessful connection to the database");
-            log.warning("The SQL server is running but it is not connected to netbeans.");
+            
         }
         
        
