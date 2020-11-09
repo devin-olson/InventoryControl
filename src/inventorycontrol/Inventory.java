@@ -135,26 +135,35 @@ public class Inventory {
     }
     
     //Search method logic
-    public String searchInventory(String productName)throws SecurityException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
+    public void searchInventory()throws SecurityException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
         
         //DB Connection logic for searching an item
         Connection conn = null;
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-        
+        Scanner sc = new Scanner(System.in);
         try{
             String URL = "jdbc:mysql://127.0.0.1:3306/products" + "?verifyServerCertificate=false"
                                         + "&useSSL=false" + "&requireSSL=true";
             conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
             if(conn!=null){
+                
                 System.out.println("Successful connection to the database!");
-                PreparedStatement preStatement = conn.prepareStatement("SELECT * FROM inventory_products WHERE productName =? ");
-                String SQL = "SELECT * FROM invntory_products WHERE productName = ?";
-                 ResultSet rs = preStatement.executeQuery(SQL);
-                 
+                System.out.println("Please enter a product category.\n");
+                productName = sc.next();
+                String SQL = "SELECT * FROM inventory_products WHERE productCategory = 'productCategory' ";
+                PreparedStatement preStatement = conn.prepareStatement("SELECT * FROM inventory_products WHERE productCategory = 'productCategory'  ");
+                
+                ResultSet rs = preStatement.executeQuery(SQL);
+                
                 while(rs.next()){
-                   // productName = rs.getString("productName");
+                   productID = rs.getInt("productID");
+                   productName = rs.getString("productName");
+                   stock = rs.getInt("stock");
+                   price = rs.getFloat("price");
+                   productCategory = rs.getString("productCategory");
+                   
                     
-                    System.out.println(productID + rs.getString("productName") + " " + stock + " " + price + " " + productCategory);
+                    System.out.println(productID + " "+ rs.getString("productName") + " " + stock + " " + price + " " + rs.getString("productCategory"));
                 }
             }
             
@@ -162,7 +171,7 @@ public class Inventory {
             System.out.println(e.getMessage());
         }
         
-        return productName;
+        //return productCategory;
     }
     
     //Add method logic
@@ -174,10 +183,7 @@ public class Inventory {
         
        try {
            String URL = "jdbc:mysql://localhost:3306/products";
-            //System.out.println("\nPress q to stop adding products.");
-           /* if(sc.next().equalsIgnoreCase("q")){
-                break;   
-            }else{*/
+            
             System.out.println("\nPlease enter the requested information.\n");
             System.out.println("Enter the product ID: ");
             productID = sc.nextInt();
