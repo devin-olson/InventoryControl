@@ -27,6 +27,7 @@ public class Inventory {
     protected String productName;
     protected int stock;
     protected float price;
+    protected String productCategory;
     
     
    // final static Logger.log(Inventory.class.getName());
@@ -89,6 +90,14 @@ public class Inventory {
         return price;
     }
     
+    public void setCategory(String productCategory){
+        this.productCategory = productCategory;
+    }
+    
+    public String getCategory(){
+        return productCategory;
+    }
+    
     //View all method logic
     public void viewInventory()throws SecurityException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException {
        
@@ -97,7 +106,7 @@ public class Inventory {
         Connection conn = null;
        
         try{
-            String connectionURL = "jdbc:mysql://127.0.0.1:3306/Products" + "?verifyServerCertificate=false"
+            String connectionURL = "jdbc:mysql://127.0.0.1:3306/products" + "?verifyServerCertificate=false"
                                         + "&useSSL=false" + "&requireSSL=true";
                 conn = DriverManager.getConnection(connectionURL, "root","Gortoonforleeway232");
 
@@ -112,10 +121,11 @@ public class Inventory {
                         productName = rs.getString("productName");
                         stock = rs.getInt("stock");
                         price = rs.getFloat("price");
+                        productCategory = rs.getString("productCategory");
 
                         //print statement\
                         System.out.println(productID + " " + productName + " " 
-                                            + stock + " " + price + " ");
+                                            + stock + " " + price + " " + productCategory + " ");
                     }
                 }
         }catch(SQLException e){
@@ -132,7 +142,7 @@ public class Inventory {
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
         
         try{
-            String URL = "jdbc:mysql://127.0.0.1:3306/Products" + "?verifyServerCertificate=false"
+            String URL = "jdbc:mysql://127.0.0.1:3306/products" + "?verifyServerCertificate=false"
                                         + "&useSSL=false" + "&requireSSL=true";
             conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
             if(conn!=null){
@@ -144,7 +154,7 @@ public class Inventory {
                 while(rs.next()){
                    // productName = rs.getString("productName");
                     
-                    System.out.println(productID + rs.getString("productName") + " " + stock + " " + price);
+                    System.out.println(productID + rs.getString("productName") + " " + stock + " " + price + " " + productCategory);
                 }
             }
             
@@ -159,41 +169,68 @@ public class Inventory {
     public void addProduct(){
         
         //user input  for adding items  
-        Scanner sc = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in).useDelimiter("\\n");
         
-        while(true)
-        {
-            System.out.println("\nPress q to stop adding products.");
-            if(sc.next().equalsIgnoreCase("q")){
+        
+       try {
+           String URL = "jdbc:mysql://localhost:3306/products";
+            //System.out.println("\nPress q to stop adding products.");
+           /* if(sc.next().equalsIgnoreCase("q")){
                 break;   
-            }else{
-            sc.nextLine();
+            }else{*/
+            System.out.println("\nPlease enter the requested information.\n");
             System.out.println("Enter the product ID: ");
             productID = sc.nextInt();
-            getProductID();
             
             System.out.println("\nEnter the product name: ");
+            
             productName = sc.next();
+            
             sc.nextLine();
-            getProductName();
+            
+            
             
             System.out.println("\nEnter the number of available units: ");
             stock = sc.nextInt();
-             sc.nextLine();
-            getStock();
+             
+            
             
             System.out.println("\nEnter the price: ");
             price = sc.nextFloat();
-             sc.nextLine();
-            getPrice();
             
-            System.out.println("\nItem Succesfully added!");
+            System.out.println("Enter the products category!");
+            productCategory = sc.next();
+             
+            
+            //connection to DB       
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+          
+            
+            //code to input new user input into database
+            PreparedStatement pst = conn.prepareStatement("INSERT into inventory_products(productID, productName, stock, price, productCategory) values(?,?,?,?,?)");
+             
+            pst.setInt(1, productID);
+            pst.setString(2, productName);
+            pst.setInt(3, stock);
+            pst.setFloat(4, price);
+            pst.setString(5, productCategory);
+            
+            int i = pst.executeUpdate();
+            
+            if(i != 0){
+                System.out.println("\nItem Succesfully added!");
+            }else{
+                System.out.println("Failed to add item!");
             }
+            
+            
+            }catch(Exception e){
+                System.out.println(e);
             
         }
         
     
-    
+       System.out.println("\n\n\n\n\n");
     
         
         
