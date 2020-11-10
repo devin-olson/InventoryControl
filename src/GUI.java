@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -28,7 +29,7 @@ public class GUI extends javax.swing.JFrame {
         initComponents();
         //show_inventory();
     }
-    
+    //viewing
     public ArrayList<Inventory> productList(){
         ArrayList<Inventory> productList = new ArrayList<>();
         
@@ -52,6 +53,29 @@ public class GUI extends javax.swing.JFrame {
         return productList;
     }
     
+    public ArrayList<Inventory> searchProduct(){
+       ArrayList<Inventory> searchProduct = new ArrayList<>();
+       
+       try{
+           Class.forName("com.mysql.cj.jdbc.Driver");
+           String URL = "jdbc:mysql://localhost:3306/products";
+           Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+           String SQL = "SELECT * FROM inventory_products WHERE productID =?";
+           PreparedStatement pst = conn.prepareStatement("SELECT * FROM iventory_products WHERE productID = ?");
+           ResultSet rs = pst.executeQuery(SQL);
+           Inventory inventory;
+           
+           while(rs.next()){
+               inventory = new Inventory(rs.getInt("productID"), rs.getString("productName"), rs.getInt("stock"), rs.getFloat("price"),rs.getString("productCategory"));
+               searchProduct.add(inventory);
+           }
+       }catch(Exception e){
+           System.out.println(e);
+       }
+        
+        return searchProduct;
+    }
+    
     public void show_inventory(){
         ArrayList<Inventory> list = productList();
         DefaultTableModel model = (DefaultTableModel)jTable_Display_Inventory.getModel();
@@ -63,6 +87,20 @@ public class GUI extends javax.swing.JFrame {
             row[3] = list.get(i).getPrice();
             row[4] = list.get(i).getCategory();
             model.addRow(row);
+        }
+    }
+    
+    public void searchInventory(){
+        ArrayList<Inventory> search = searchProduct();
+        DefaultTableModel model = (DefaultTableModel)jTable_Display_Inventory.getModel();
+        Object[] row = new Object[5];
+        for(int i = 0; i<search.size();i++){
+            row[0] = search.get(i).getProductID();
+            row[1] = search.get(i).getProductName();
+            row[2] = search.get(i).getStock();
+            row[3] = search.get(i).getPrice();
+            row[4] = search.get(i).getCategory();
+            model.addColumn(row);
         }
     }
 
@@ -82,11 +120,11 @@ public class GUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable_Display_Inventory = new javax.swing.JTable();
         viewInventory = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
+        productID = new javax.swing.JTextField();
+        productName = new javax.swing.JTextField();
+        stock = new javax.swing.JTextField();
+        price = new javax.swing.JTextField();
+        productCat = new javax.swing.JTextField();
         searchInventory = new javax.swing.JButton();
         addProduct = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
@@ -96,8 +134,7 @@ public class GUI extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txt_search = new javax.swing.JTextField();
 
         jMenu1.setBorder(new javax.swing.border.MatteBorder(null));
         jMenu1.setText("jMenu1");
@@ -139,18 +176,23 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        productID.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                productIDActionPerformed(evt);
             }
         });
 
-        jTextField2.setText("\n");
+        productName.setText("\n");
 
         searchInventory.setText("Search");
         searchInventory.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchInventoryActionPerformed(evt);
+            }
+        });
+        searchInventory.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchInventoryKeyReleased(evt);
             }
         });
 
@@ -180,11 +222,11 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jTextArea1.setEditable(false);
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setText("Welcome to my inventory control system!");
-        jScrollPane2.setViewportView(jTextArea1);
+        txt_search.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_searchKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -192,9 +234,17 @@ public class GUI extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(viewInventory)
+                        .addGap(137, 137, 137)
+                        .addComponent(addProduct)
+                        .addGap(29, 29, 29)
+                        .addComponent(jButton4)
+                        .addGap(35, 35, 35)
+                        .addComponent(jButton5))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(layout.createSequentialGroup()
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -204,56 +254,49 @@ public class GUI extends javax.swing.JFrame {
                                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGap(12, 12, 12))
                                 .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
-                            .addGap(30, 30, 30)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addComponent(jScrollPane2))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(viewInventory)
-                        .addGap(33, 33, 33)
-                        .addComponent(searchInventory)
-                        .addGap(39, 39, 39)
-                        .addComponent(addProduct)
-                        .addGap(29, 29, 29)
-                        .addComponent(jButton4)
-                        .addGap(35, 35, 35)
-                        .addComponent(jButton5)))
+                            .addComponent(searchInventory))
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(price, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(stock, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(productName, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(productID, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(productCat, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txt_search, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
+                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(searchInventory)
+                    .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(productID, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(productName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(stock, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(price, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(productCat, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addProduct)
-                    .addComponent(searchInventory)
                     .addComponent(viewInventory)
                     .addComponent(jButton4)
                     .addComponent(jButton5))
@@ -265,9 +308,9 @@ public class GUI extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void productIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_productIDActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_productIDActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
@@ -291,17 +334,77 @@ public class GUI extends javax.swing.JFrame {
 
     private void searchInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchInventoryActionPerformed
         
-        Inventory inv = new Inventory();
+        
+        
+       // searchInventory();
+       /* Inventory inv = new Inventory();
        try{
         inv.searchInventory();
        }catch(Exception e){
            JOptionPane.showMessageDialog(null, e);
-       }
+       }*/
     }//GEN-LAST:event_searchInventoryActionPerformed
 
     private void addProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addProductActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_addProductActionPerformed
+
+    private void searchInventoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchInventoryKeyReleased
+      
+       /* try{
+            Class.forName("com.jdbc.mysql.cj.Driver");
+            String URL = "jdbc:mysql://localhost:3306;products";
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            String SQL ="SELECT * FROM inventory_products WHERE productID = ' '";
+            PreparedStatement pst = conn.prepareStatement(SQL);
+            pst.setString(1, txt_search.getText());
+            ResultSet rs = pst.executeQuery();
+            if(rs.next()){
+                String add1= rs.getString("productID");
+                productID.setText(add1);
+                String add2 = rs.getString("productName");
+                productName.setText(add2);
+                String add3 = rs.getString("stock");
+                stock.setText(add3);
+                String add4 = rs.getString("price");
+                price.setText(add4);
+                String add5 = rs.getString("productCategory");
+                productCat.setText(add5);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+        }   */   
+        
+        
+        
+        
+    }//GEN-LAST:event_searchInventoryKeyReleased
+
+    private void txt_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_searchKeyReleased
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String URL = "jdbc:mysql://localhost:3306/products";
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            String SQL ="SELECT * FROM inventory_products WHERE productID = ?";
+            PreparedStatement pst = conn.prepareStatement(SQL);
+            pst.setString(1, txt_search.getText());
+            ResultSet rs = pst.executeQuery();
+            if(rs.next()){
+                String add1= rs.getString("productID");
+                productID.setText(add1);
+                String add2 = rs.getString("productName");
+                productName.setText(add2);
+                String add3 = rs.getString("stock");
+                stock.setText(add3);
+                String add4 = rs.getString("price");
+                price.setText(add4);
+                String add5 = rs.getString("productCategory");
+                productCat.setText(add5);
+            }
+        }catch(Exception e){
+            System.out.println(e);
+        }      
+    }//GEN-LAST:event_txt_searchKeyReleased
 
     /**
      * @param args the command line arguments
@@ -353,15 +456,14 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable_Display_Inventory;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField price;
+    private javax.swing.JTextField productCat;
+    private javax.swing.JTextField productID;
+    private javax.swing.JTextField productName;
     private javax.swing.JButton searchInventory;
+    private javax.swing.JTextField stock;
+    private javax.swing.JTextField txt_search;
     private javax.swing.JButton viewInventory;
     // End of variables declaration//GEN-END:variables
 }
