@@ -19,12 +19,13 @@ import java.util.Scanner;
 import java.util.logging.*;
 
 import java.util.logging.Level;
+import javax.swing.JFrame;
 
 /**
  *
  * @author Devin
  */
-public class Inventory {
+public class Inventory extends JFrame{
     
     protected int productID;
     protected String productName;
@@ -54,7 +55,8 @@ public class Inventory {
         System.out.println("1.View Inventory\n");
         System.out.println("2.Search Products\n");
         System.out.println("3.Add items\n");
-        System.out.println("4.Exit\n");
+        System.out.println("4.Delete a row\n");
+        System.out.println("5.Exit\n");
         
        
     }
@@ -127,8 +129,11 @@ public class Inventory {
                         productCategory = rs.getString("productCategory");
 
                         //print statement\
-                        System.out.println("ID: "+ productID + "  Product Name: " + productName + "  Stock: " 
-                                            + stock + "  Price: $ " + price + "  Category: " + productCategory + " \n");
+                        System.out.println("Product ID: "+ productID + "\n\nProduct Name: " + productName + "\n\nStock: " 
+                                            + stock + "\n\nPrice: $ " + price + "\n\nCategory: " + productCategory + " \n\n");
+                        
+                        System.out.println("-------------------------------------------\n");
+                        
                     }
                 }
         }catch(SQLException e){
@@ -241,7 +246,7 @@ public class Inventory {
                 System.out.println("Failed to add item!");
             }
             
-            
+            conn.close();
             }catch(Exception e){
                 System.out.println(e);
             
@@ -252,6 +257,23 @@ public class Inventory {
     
         
         
+    }
+    
+    
+    public void deleteRow(){
+        Connection conn = null;
+        String URL = "jdbc:mysql://localhost:3306/products";
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            PreparedStatement preStatement = conn.prepareStatement("DELETE FROM inventory_products WHERE productID = ?");
+            preStatement.setInt(1,productID);
+            preStatement.executeUpdate();
+            System.out.println("Deleted!");
+            conn.close();
+        }catch(Exception e){
+            System.out.println(e);
+        }
     }
     
 }
