@@ -5,7 +5,10 @@
  */
 package inventorycontrol;
 
+
 import java.io.IOException;
+
+import static java.lang.System.in;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -124,8 +127,8 @@ public class Inventory {
                         productCategory = rs.getString("productCategory");
 
                         //print statement\
-                        System.out.println(productID + " " + productName + " " 
-                                            + stock + " " + price + " " + productCategory + " ");
+                        System.out.println("ID: "+ productID + "  Product Name: " + productName + "  Stock: " 
+                                            + stock + "  Price: $ " + price + "  Category: " + productCategory + " \n");
                     }
                 }
         }catch(SQLException e){
@@ -141,6 +144,7 @@ public class Inventory {
         Connection conn = null;
         Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
         Scanner sc = new Scanner(System.in);
+        
         try{
             String URL = "jdbc:mysql://127.0.0.1:3306/products" + "?verifyServerCertificate=false"
                                         + "&useSSL=false" + "&requireSSL=true";
@@ -148,10 +152,13 @@ public class Inventory {
             if(conn!=null){
                 
                 System.out.println("Successful connection to the database!");
+               
                 System.out.println("Please enter a product category.\n");
-                productName = sc.next();
-                String SQL = "SELECT * FROM inventory_products WHERE productCategory = 'productCategory' ";
-                PreparedStatement preStatement = conn.prepareStatement("SELECT * FROM inventory_products WHERE productCategory = 'productCategory'  ");
+                         
+                productCategory = sc.nextLine();
+                String SQL = "SELECT * FROM inventory_products WHERE productCategory = '[^a-z]-[^A-Z]'  " ;
+                PreparedStatement preStatement = conn.prepareStatement("SELECT * FROM inventory_products WHERE productCategory = '[^a-z]-[^A-Z]' " );
+                
                 
                 ResultSet rs = preStatement.executeQuery(SQL);
                 
@@ -162,9 +169,14 @@ public class Inventory {
                    price = rs.getFloat("price");
                    productCategory = rs.getString("productCategory");
                    
-                    
-                    System.out.println(productID + " "+ rs.getString("productName") + " " + stock + " " + price + " " + rs.getString("productCategory"));
+                   // System.out.println(productID + ", "+ productName + ", " + stock + ", " + price + ", " + productCategory);
                 }
+                
+                
+                    //System.out.println(rs.getInt("productID") + " "+ rs.getString("productName") + " " + rs.getInt("stock") + " " + rs.getFloat("price") + " " + rs.getString(productCategory));
+                   // System.out.println(productID + ", "+ productName + ", " + stock + ", " + price + ", " + productCategory);
+                    rs.toString();
+                    System.out.println(productID + ", "+ productName + ", " + stock + ", " + price + ", " + productCategory);
             }
             
         }catch(SQLException e){
