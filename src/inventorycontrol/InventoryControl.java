@@ -5,13 +5,9 @@
  */
 package inventorycontrol;
 import java.util.*;
+import java.sql.*;
 import java.io.InputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.*;
 
 /**
@@ -24,40 +20,7 @@ import java.util.logging.*;
 public class InventoryControl {
     
     
-    public void displayMenu(){
-        
-        
-        System.out.println("Welcome to my simple invetory control system");
-        System.out.println("\nPlease select an option 1-4 to continue: ");
-        
-        int choice = 0;
-        Scanner sc = new Scanner(System.in);
-        
-        while(choice >= 1 && choice <= 4){
-            
-            switch(choice){
-                
-                case 1: System.out.println("View all");
-                      //view all method
-                    break;
-                case 2: System.out.println("Search");
-                    //search method call
-                    break;
-                case 3: System.out.println("Add item");
-                    //add method call
-                    break;
-                case 4: System.out.println("Exit");
-                    System.out.println("Thanks for using my program!");
-                    break;
-                default:
-                    System.out.println("Please enter a valid choice 1-4!");
-                    
-            }
-        }
-
-    }
-    
-    //instantiate logging class
+  //instantiate logging class
     
    private final static Logger log = Logger.getLogger(InventoryControl.class.getName());
     
@@ -80,30 +43,56 @@ public class InventoryControl {
         
     }
     
-    public static void main(String[] args) throws SecurityException, IOException {
+    //public static void main(String[] args) throws SecurityException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException {
         
-        InventoryControl ic = new InventoryControl();
-       
-        //SQL connection code
-        //My server is running but is not connecting to netbeans
-        Connection conn = null;
         
-        try{
-          
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Inventory","root","Gortoonforleeway232");
-            if(conn != null)
-            {
-                System.out.println("Successful connection to the database");
-                log.info("I successfully connected the database.");
-            }
-        }catch(Exception e)
-        {
-            System.out.println("Unsuccessful connection to the database");
+       /* Inventory inv = new Inventory();
+        DBConnection dbc = new DBConnection();
+        
+        //SQL connection to DB call
+        dbc.connect();
+        
+       Scanner sc = new Scanner(System.in);
+        while(true){
+            inv.displayMenu();
+           // Scanner sc = new Scanner(System.in);
             
-        }
+        
+        
+                switch(sc.nextInt()){
+
+                    case 1: 
+
+                        // dbc.connect();
+                        inv.viewInventory();
+                        break;
+                    case 2: 
+                        //search method call
+                        inv.searchInventory();
+                        break;
+                    case 3: 
+                        //add method call
+
+                        inv.addProduct();
+                        break;
+                        
+                    case 4:
+                        inv.deleteRow();
+                        break;
+                    case 5: 
+                        System.out.println("Thanks for using my program!");
+                        System.exit(0);
+                      
+                        
+                    default:
+                        System.out.println("Please enter a valid choice 1-5!");
+
+                }
         
        
+            }
         
-    
+    */
     }
-}
+    
+//}
