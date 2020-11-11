@@ -46,6 +46,7 @@ public class GUI extends javax.swing.JFrame {
                 inventory = new Inventory(rs.getInt("productID"), rs.getString("productName"), rs.getInt("stock"), rs.getFloat("price"), rs.getString("productCategory"));
                 productList.add(inventory);
             }
+            conn.close();
         }catch(Exception e){
             JOptionPane.showMessageDialog(null, e);
         }
@@ -53,28 +54,7 @@ public class GUI extends javax.swing.JFrame {
         return productList;
     }
     
-    public ArrayList<Inventory> searchProduct(){
-       ArrayList<Inventory> searchProduct = new ArrayList<>();
-       
-       try{
-           Class.forName("com.mysql.cj.jdbc.Driver");
-           String URL = "jdbc:mysql://localhost:3306/products";
-           Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
-           String SQL = "SELECT * FROM inventory_products WHERE productID =?";
-           PreparedStatement pst = conn.prepareStatement("SELECT * FROM iventory_products WHERE productID = ?");
-           ResultSet rs = pst.executeQuery(SQL);
-           Inventory inventory;
-           
-           while(rs.next()){
-               inventory = new Inventory(rs.getInt("productID"), rs.getString("productName"), rs.getInt("stock"), rs.getFloat("price"),rs.getString("productCategory"));
-               searchProduct.add(inventory);
-           }
-       }catch(Exception e){
-           System.out.println(e);
-       }
-        
-        return searchProduct;
-    }
+    
     
     public void show_inventory(){
         ArrayList<Inventory> list = productList();
@@ -87,22 +67,11 @@ public class GUI extends javax.swing.JFrame {
             row[3] = list.get(i).getPrice();
             row[4] = list.get(i).getCategory();
             model.addRow(row);
+            
         }
     }
     
-    public void searchInventory(){
-        ArrayList<Inventory> search = searchProduct();
-        DefaultTableModel model = (DefaultTableModel)jTable_Display_Inventory.getModel();
-        Object[] row = new Object[5];
-        for(int i = 0; i<search.size();i++){
-            row[0] = search.get(i).getProductID();
-            row[1] = search.get(i).getProductName();
-            row[2] = search.get(i).getStock();
-            row[3] = search.get(i).getPrice();
-            row[4] = search.get(i).getCategory();
-            model.addColumn(row);
-        }
-    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -127,14 +96,15 @@ public class GUI extends javax.swing.JFrame {
         productCat = new javax.swing.JTextField();
         searchInventory = new javax.swing.JButton();
         addProduct = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        updateProd = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
+        deleteProd = new javax.swing.JButton();
         txt_search = new javax.swing.JTextField();
+        jTextField1 = new javax.swing.JTextField();
 
         jMenu1.setBorder(new javax.swing.border.MatteBorder(null));
         jMenu1.setText("jMenu1");
@@ -203,7 +173,12 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jButton4.setText("Update");
+        updateProd.setText("Update");
+        updateProd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateProdActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Product ID");
 
@@ -215,10 +190,10 @@ public class GUI extends javax.swing.JFrame {
 
         jLabel5.setText("Product Category");
 
-        jButton5.setText("Update");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        deleteProd.setText("Delete");
+        deleteProd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                deleteProdActionPerformed(evt);
             }
         });
 
@@ -228,6 +203,8 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        jTextField1.setText("Search by Product ID");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -235,27 +212,25 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(119, 119, 119)
                         .addComponent(viewInventory)
-                        .addGap(137, 137, 137)
+                        .addGap(18, 18, 18)
                         .addComponent(addProduct)
                         .addGap(29, 29, 29)
-                        .addComponent(jButton4)
+                        .addComponent(updateProd)
                         .addGap(35, 35, 35)
-                        .addComponent(jButton5))
+                        .addComponent(deleteProd))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGap(12, 12, 12))
-                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(searchInventory))
-                        .addGap(30, 30, 30)
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(price, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -263,14 +238,19 @@ public class GUI extends javax.swing.JFrame {
                                 .addComponent(productName, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(productID, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(productCat, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txt_search, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txt_search, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(179, 179, 179)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(31, 31, 31)
+                .addGap(16, 16, 16)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(searchInventory)
                     .addComponent(txt_search, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -294,12 +274,12 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(productCat, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addProduct)
                     .addComponent(viewInventory)
-                    .addComponent(jButton4)
-                    .addComponent(jButton5))
+                    .addComponent(updateProd)
+                    .addComponent(deleteProd))
                 .addGap(40, 40, 40))
             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
         );
@@ -312,9 +292,22 @@ public class GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_productIDActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void deleteProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteProdActionPerformed
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String URL = "jdbc:mysql://localhost:3306/products";
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            String SQL = "DELETE  FROM inventory_products WHERE productID = ?";
+            PreparedStatement pst = conn.prepareStatement(SQL);
+            pst.setInt(1, Integer.parseInt(productID.getText()));
+            pst.executeUpdate();
+            
+            JOptionPane.showMessageDialog(null, "Product Deleted!");
+            conn.close();
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }//GEN-LAST:event_deleteProdActionPerformed
 
     private void viewInventoryMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_viewInventoryMouseClicked
         
@@ -323,57 +316,64 @@ public class GUI extends javax.swing.JFrame {
         show_inventory();
         
         
-       /* Inventory inv = new Inventory();
        
-        try{
-        inv.viewInventory();
-        }catch(Exception e){
-            System.out.println(e);
-        }*/
     }//GEN-LAST:event_viewInventoryMouseClicked
 
     private void searchInventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchInventoryActionPerformed
         
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String URL = "jdbc:mysql://localhost:3306/products";
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            String SQL = "SELECT *  FROM inventory_products WHERE productID = ?";
+            PreparedStatement pst = conn.prepareStatement(SQL);
+            pst.setInt(1, Integer.parseInt(txt_search.getText()));
+            
+            ResultSet rs = pst.executeQuery();
+            if(rs.next()){
+                productID.setText(rs.getString("productID"));
+                productName.setText(rs.getString("productName"));
+                stock.setText(rs.getString("stock"));
+                price.setText(rs.getString("price"));
+                productCat.setText(rs.getString("productCategory"));
+                
+            }else{
+                JOptionPane.showMessageDialog(null, "Product not found!");
+            }
+            conn.close();
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+        }
         
-        
-       // searchInventory();
-       /* Inventory inv = new Inventory();
-       try{
-        inv.searchInventory();
-       }catch(Exception e){
-           JOptionPane.showMessageDialog(null, e);
-       }*/
+      
     }//GEN-LAST:event_searchInventoryActionPerformed
 
     private void addProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addProductActionPerformed
-        // TODO add your handling code here:
+        
+        try{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        String URL = "jdbc:mysql://localhost:3306/products";
+        Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+        
+        PreparedStatement pst = conn.prepareStatement("INSERT into inventory_products(productID, productName, stock, price, productCategory) values(?,?,?,?,?)");
+        pst.setInt(1, Integer.parseInt(productID.getText()));
+        pst.setString(2,productName.getText());
+        pst.setInt(3, Integer.parseInt(stock.getText()));
+        pst.setFloat(4, Float.parseFloat(price.getText()));
+        pst.setString(5, productCat.getText());
+        pst.executeUpdate();
+        
+        JOptionPane.showMessageDialog(null, "Product added!");
+        conn.close();
+        
+        }catch(Exception e){
+            System.out.println(e);
+        }
     }//GEN-LAST:event_addProductActionPerformed
 
     private void searchInventoryKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchInventoryKeyReleased
       
-       /* try{
-            Class.forName("com.jdbc.mysql.cj.Driver");
-            String URL = "jdbc:mysql://localhost:3306;products";
-            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
-            String SQL ="SELECT * FROM inventory_products WHERE productID = ' '";
-            PreparedStatement pst = conn.prepareStatement(SQL);
-            pst.setString(1, txt_search.getText());
-            ResultSet rs = pst.executeQuery();
-            if(rs.next()){
-                String add1= rs.getString("productID");
-                productID.setText(add1);
-                String add2 = rs.getString("productName");
-                productName.setText(add2);
-                String add3 = rs.getString("stock");
-                stock.setText(add3);
-                String add4 = rs.getString("price");
-                price.setText(add4);
-                String add5 = rs.getString("productCategory");
-                productCat.setText(add5);
-            }
-        }catch(Exception e){
-            System.out.println(e);
-        }   */   
+       
         
         
         
@@ -381,7 +381,7 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_searchInventoryKeyReleased
 
     private void txt_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_searchKeyReleased
-        try{
+       /* try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             String URL = "jdbc:mysql://localhost:3306/products";
             Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
@@ -400,11 +400,36 @@ public class GUI extends javax.swing.JFrame {
                 price.setText(add4);
                 String add5 = rs.getString("productCategory");
                 productCat.setText(add5);
+                conn.close();
             }
         }catch(Exception e){
             System.out.println(e);
-        }      
+        }      */
     }//GEN-LAST:event_txt_searchKeyReleased
+
+    private void updateProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateProdActionPerformed
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String URL = "jdbc:mysql://localhost:3306/products";
+            Connection conn = DriverManager.getConnection(URL, "root", "Gortoonforleeway232");
+            String SQL = "UPDATE inventory_products SET productName = ?, stock = ?, price = ?, productCategory = ? WHERE productID = ?";
+           
+            PreparedStatement pst = conn.prepareStatement(SQL);
+            
+           
+            pst.setString(1, productName.getText());
+            pst.setString(2, stock.getText());
+            pst.setFloat(3, Float.parseFloat(price.getText()));
+            pst.setString(4, productCat.getText());
+            pst.setInt(5, Integer.parseInt(productID.getText()));
+
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Record Updated!");
+            conn.close();
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_updateProdActionPerformed
 
     /**
      * @param args the command line arguments
@@ -444,8 +469,7 @@ public class GUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addProduct;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton deleteProd;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -457,6 +481,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable_Display_Inventory;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField price;
     private javax.swing.JTextField productCat;
     private javax.swing.JTextField productID;
@@ -464,6 +489,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JButton searchInventory;
     private javax.swing.JTextField stock;
     private javax.swing.JTextField txt_search;
+    private javax.swing.JButton updateProd;
     private javax.swing.JButton viewInventory;
     // End of variables declaration//GEN-END:variables
 }
